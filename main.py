@@ -1,4 +1,3 @@
-"Hello World"
 """
 Prints the number of pages crawled. (Does not have any crawling code,
 so the number is always 0.)
