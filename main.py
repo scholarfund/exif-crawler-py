@@ -1,16 +1,14 @@
 """
-Prints the number of pages crawled. (Does not have any crawling code,
-so the number is always 0.)
+Here is a simple web browser that is looping constantly, if the URL doesn't have "https://" it will add it for the browser to work.
 """
 
-import requests
 
 
-
-print ("Using requests version:", requests.__version__)
-
-num_pages = 0
-print("Found", num_pages, "pages.")
-
-response =  requests.get("https://www.scholarfundwa.org/")
-print(response.content)
+while True: # The "True" tells Python to always try to loop.
+    url = input("Enter a URL: ")
+    if "https://" not in url: 
+        url = "https://" + url 
+    import requests
+    response =  requests.get(url)
+    print(requests)
+    print(response.content)
