@@ -11,11 +11,22 @@ while True: # The "True" tells Python to always try to loop.
         break
     if "https://" not in url: 
         url = "https://" + url 
-    response =  requests.get(url)
-    #print(response.content)
-    html_doc = response.content
-    soup = bs4.BeautifulSoup(html_doc, 'html.parser')
-    print(soup.prettify())
+    try:
+        response =  requests.get(url)
+        response.raise_for_status()  # Raise an Error for bad responses
+        #print(response.content)
+        html_doc = response.content
+        soup = bs4.BeautifulSoup(html_doc, 'html.parser')
+    
+        # Find all <a> elements and print code
+        all_links = soup.find_all("a")
+        for link in all_links:
+            print(link)
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+
+    #print(soup.prettify())
 
 # Output:
 
