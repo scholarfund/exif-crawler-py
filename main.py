@@ -3,14 +3,19 @@ Here is a simple web browser that is looping constantly unless you ask it to "qu
 """
 import requests
 import bs4
+from urllib.parse import urljoin
 
 
-while True: # The "True" tells Python to always try to loop.
-    url = input("Enter a URL (or 'quit' to exit): ")
-    if url.lower().strip() == "quit":
-        break
-    if "https://" not in url: 
-        url = "https://" + url 
+def get_valid_url():
+    while True: # The "True" tells Python to always try to loop.
+        url = input("Enter a URL (or 'quit' to exit): ")
+        if url.lower().strip() == "quit":
+            return None
+        if "https://" not in url: 
+            url = "https://" + url 
+        return url
+    
+def print_absolute_image_urls(url):
     try:
         response =  requests.get(url)
         response.raise_for_status()  # Raise an Error for bad responses
@@ -18,14 +23,30 @@ while True: # The "True" tells Python to always try to loop.
         html_doc = response.content
         soup = bs4.BeautifulSoup(html_doc, 'html.parser')
     
-        # Find all <a> elements and print code
-        all_links = soup.find_all("a")
-        for link in all_links:
-            print(link)
+        # Find all <img> elements
+        all_images = soup.find_all("img")
+        
+        # Print absolute URLs for image sources
+        for img in all_images:
+            src = img.get("src")
+            absolute_url = urljoin(url, src)
+            print(absolute_url)
+        
 
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
 
+def main():
+    while True:
+        url = get_valid_url()
+        if url is None:
+            break
+
+        print_absolute_image_urls(url)
+
+if __name__ == "__main__":
+    main()
+    
     #print(soup.prettify())
 
 # Output:
