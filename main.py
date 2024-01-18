@@ -43,7 +43,14 @@ def get_file_extension(file_path):
 
     return my_split_string[-1]
     
-
+def list_exif_tags(image):
+    exif_mapping = image.getexif()
+    if exif_mapping is not None:
+        tag_ids = list(exif_mapping.keys()) 
+        return tag_ids
+    else:
+        return []
+    
 def get_absolute_image_urls(page_url):
     """
     Fetch an HTML page, parse it, identify <img> tags, and return a list
@@ -65,14 +72,6 @@ def get_absolute_image_urls(page_url):
 
     return all_urls
 
-def list_known_exif_tag_names(image):
-    """
-    Given a PIL Image, look up the EXIF metadata it contains and return a list
-    of EXIF tag names as strings.
-    """
-
-    raise NotImplementedError()
-
 def scan_page(page_url):
     """
     Fetch an HTML page and scan it for images with EXIF metadata.
@@ -92,7 +91,7 @@ def scan_page(page_url):
             image = open_bytes_as_image(raw_data)
             print("Decoded image size (pixels):", image.size)
 
-            known_tags = list_known_exif_tag_names(image)
+            known_tags = list_exif_tags(image)
             print("EXIF tags:", known_tags)
 
             print()  # Print blank line for clarity
