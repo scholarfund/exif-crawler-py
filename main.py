@@ -91,8 +91,12 @@ def scan_page(page_url):
             image = open_bytes_as_image(raw_data)
             print("Decoded image size (pixels):", image.size)
 
-            known_tags = list_exif_tags(image)
-            print("EXIF tags:", known_tags)
+            exif_tags = list_exif_tags(image)
+            print("EXIF tags:", exif_tags)
+
+            if 0x8825 in exif_tags:  # Check for GPS metadata tag
+                message = generate_slack_message(image_url, page_url)
+                post_to_slack(message)
 
             print()  # Print blank line for clarity
 
@@ -110,6 +114,29 @@ def normalize_url(url):
 
     return url       
 
-page_url = input("Enter a URL: ")
-page_url = normalize_url(page_url)
-scan_page(page_url)    
+def generate_slack_message(image_url, page_url):
+    """
+    Generate a Slack message when GPS metadata is found in an image URL.
+    """
+    return (
+        ":map: I'm crawling the website and noticed that the image "
+        f"{image_url} on page {page_url} might have unwanted EXIF metadata embedded, "
+        "possibly including geographic location."
+    )
+
+def post_to_slack(message):
+    """
+    Post a message to Slack using Zapier's webhook URL.
+    """
+    webhook_url = "https://hooks.zapier.com/hooks/catch/9954195/bvr7oxh/"
+    requests.post(webhook_url, json={"message": message})   
+
+def main():
+    """
+    Main function to interact with the user and scan web pages.
+    """
+    page_url = "https://www.scholarfundwa.org/about"
+    scan_page(page_url)
+
+if __name__ == "__main__":
+    main()
