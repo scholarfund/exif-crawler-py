@@ -1,0 +1,43 @@
+name: Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        required: true
+
+jobs:
+  apply:
+    name: Apply
+    runs-on: ubuntu-latest
+    environment: main
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Raku/setup-raku@v1
+      - id: gcloud_auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: projects/407214806170/locations/global/workloadIdentityPools/github-actions/providers/github-actions
+          service_account: exif-crawler-ci@tideswell.iam.gserviceaccount.com
+          access_token_lifetime: 300s
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.1
+      - name: Fetch Plan
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        run: >-
+          gh release download ${{ github.event.inputs.release_tag }}
+          --output ./terraform/${{ github.event.inputs.release_tag }}.tfplan
+      # Generate, display, and save a copy of Terraform's plan to achieve the target deployemnt
+      # configuration
+      - name: Apply
+        run: >-
+          rakudo deploy.raku
+          --terraform_action=apply
+          --terraform_plan=./terraform/${{ github.event.inputs.release_tag }}.tfplan
+          ${{ github.event.inputs.release_tag }}
