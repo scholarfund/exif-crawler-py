@@ -17,7 +17,7 @@ resource "google_cloud_run_v2_job" "main" {
       service_account = google_service_account.main.email
       timeout         = "120s"
       containers {
-        image = "us-west1-docker.pkg.dev/tideswell/docker-default/exif-scanner:${var.image_tag}"
+        image = "us-west1-docker.pkg.dev/tideswell/docker-default/exif-crawler:${var.image_tag}"
       }
     }
   }
