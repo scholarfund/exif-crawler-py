@@ -72,12 +72,31 @@ def get_absolute_image_urls(page_url):
 
     return all_urls
 
+def is_approved_origin(url):
+    """
+    Returns False if URL's origin is not in an explicitly approved list.
+    Checking this helps mitigate server side request forgery, in case a page
+    being scanned references a URL that should only be accessible from within
+    a protected network boundary.
+    """
+    approved_origins = [
+        "https://www.scholarfundwa.org",
+        "https://assets-global.website-files.com",
+    ]
+    parsed_url = urllib.parse.urlparse(url)
+    url_origin = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    for approved_origin in approved_origins:
+        if url_origin == approved_origin:
+            return True
+    return False
+
 def scan_page(page_url):
     """
     Fetch an HTML page and scan it for images with EXIF metadata.
     """
 
     image_urls = get_absolute_image_urls(page_url)
+    image_urls = [url for url in image_urls if is_approved_origin(url)]
     print("All image URLS:", image_urls)
     print()  # Print blank line for clarity
 
